@@ -1,11 +1,169 @@
 ﻿
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Text.RegularExpressions;
 
 Day3();
 Day3Part2();
 Day4();
 Day4Part2();
+Day5Part1();
+Day5Part2();
+
+void Day5Part2()
+{
+    var lines = File.ReadAllLines("input_day5.txt");
+
+    bool cratesRead = false;
+    bool columnsRead = false;
+    Stack<char>[] columns = null;  
+    foreach (var line in lines)
+    {
+        if (line.Trim().Length == 0) // separator
+        {
+            cratesRead = true;
+
+            for (var i = 0; i < columns.Length; i++)
+            {
+                columns[i].Pop();
+                columns[i] = new Stack<char>(columns[i]);
+            }
+
+            continue;
+        }
+
+        if (!cratesRead)
+        {
+            var columnCount = (line.Length + 1) / 4;
+            if (columns == null)
+            {
+                columns = new Stack<char>[columnCount];
+                for (var i = 0; i < columnCount; i++)
+                {
+                    columns[i] = new Stack<char>();
+                }
+            }
+
+            var currentColumn = 0;
+            for (var i = 0; i < columnCount; i ++)
+            {
+                var character = line[(4*i) + 1];
+                if (character != ' ')
+                {
+                    columns[currentColumn].Push(character);
+                }
+
+                currentColumn++;
+            }
+        }
+        else
+        {
+            // read instructions
+
+            MoveCrate(columns, GetInstructions(line));
+
+            Tuple<int, int, int> GetInstructions(string line)
+            {
+                var matches = Regex.Matches(line, "([0-9]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var split = matches.Select(m=>m.Value).ToArray();
+                    
+                return Tuple.Create(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
+            }
+                
+
+            void MoveCrate(Stack<char>[]? stacks, Tuple<int, int, int> instructions)
+            {
+                var toMove = new List<char>();
+                for (var i = 0; i < instructions.Item1; i++)
+                {
+                    toMove.Add(columns[instructions.Item2 - 1].Pop());
+                }
+
+                toMove.Reverse();
+                foreach(var c in toMove)
+                    columns[instructions.Item3 - 1].Push(c);
+                
+            }
+        }
+    }
+    
+    Console.WriteLine("Day 5: {0}", string.Join("",columns.Select(c=>c.Pop())));
+}
+
+void Day5Part1()
+{
+    var lines = File.ReadAllLines("input_day5.txt");
+
+    bool cratesRead = false;
+    bool columnsRead = false;
+    Stack<char>[] columns = null;  
+    foreach (var line in lines)
+    {
+        if (line.Trim().Length == 0) // separator
+        {
+            cratesRead = true;
+
+            for (var i = 0; i < columns.Length; i++)
+            {
+                columns[i].Pop();
+                columns[i] = new Stack<char>(columns[i]);
+            }
+
+            continue;
+        }
+
+        if (!cratesRead)
+        {
+            var columnCount = (line.Length + 1) / 4;
+            if (columns == null)
+            {
+                columns = new Stack<char>[columnCount];
+                for (var i = 0; i < columnCount; i++)
+                {
+                    columns[i] = new Stack<char>();
+                }
+            }
+
+            var currentColumn = 0;
+            for (var i = 0; i < columnCount; i ++)
+            {
+                var character = line[(4*i) + 1];
+                if (character != ' ')
+                {
+                    columns[currentColumn].Push(character);
+                }
+
+                currentColumn++;
+            }
+        }
+        else
+        {
+            // read instructions
+
+            MoveCrate(columns, GetInstructions(line));
+
+            Tuple<int, int, int> GetInstructions(string line)
+            {
+                var matches = Regex.Matches(line, "([0-9]+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                var split = matches.Select(m=>m.Value).ToArray();
+                    
+                return Tuple.Create(int.Parse(split[0]), int.Parse(split[1]), int.Parse(split[2]));
+            }
+                
+
+            void MoveCrate(Stack<char>[]? stacks, Tuple<int, int, int> instructions)
+            {
+                for (var i = 0; i < instructions.Item1; i++)
+                {
+                    columns[instructions.Item3 - 1].Push(columns[instructions.Item2 - 1].Pop());
+                }
+            }
+        }
+    }
+    
+    Console.WriteLine("Day 5: {0}", string.Join("",columns.Select(c=>c.Pop())));
+}
 
 void Day3()
 {
